@@ -45,10 +45,7 @@ public final class Promise<Value> {
         return state.error
     }
 
-    private var result: Result? {
-        didSet { result.map(report) }
-    }
-
+    private var result: Result?
     private var observers: [Observer] = []
 
     private lazy var queue = DispatchQueue(label: "PromisesQueue", attributes: .concurrent)
@@ -63,15 +60,7 @@ public final class Promise<Value> {
 
     public init(_ work: @escaping (@escaping (Result) -> Void) throws -> Void) {
         do {
-            try work { result in
-                self.queue.sync(flags: .barrier) {
-                    guard self.result == nil else {
-                        return
-                    }
-
-                    self.result = result
-                }
-            }
+            try work(report)
         } catch {
             result = .failure(error)
         }
@@ -198,6 +187,13 @@ extension Promise {
     }
 
     private func report(result: Result) {
-        observers.forEach { $0.report(result: result) }
+        self.queue.sync(flags: .barrier) {
+            guard self.result == nil else {
+                return
+            }
+
+            self.result = result
+            observers.forEach { $0.report(result: result) }
+        }
     }
 }
