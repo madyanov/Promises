@@ -50,7 +50,10 @@ public enum Promises {
 // MARK: - Zipping
 
 extension Promises {
-    public static func zip<V1, V2>(_ p1: Promise<V1>, _ p2: Promise<V2>) -> Promise<(V1, V2)> {
+    public static func zip<V1, V2>(_ p1: Promise<V1>,
+                                   _ p2: Promise<V2>,
+                                   on context: ExecutionContext = DispatchQueue.main) -> Promise<(V1, V2)>
+    {
         return Promise<(V1, V2)> { completion in
             let zip: (Any) -> Void = { _ in
                 if let v1 = p1.value, let v2 = p2.value {
@@ -58,14 +61,15 @@ extension Promises {
                 }
             }
 
-            p1.then(zip).catch(completion)
-            p2.then(zip).catch(completion)
+            p1.then(context: context, zip).catch(context: context, completion)
+            p2.then(context: context, zip).catch(context: context, completion)
         }
     }
 
     public static func zip<V1, V2, V3>(_ p1: Promise<V1>,
                                        _ p2: Promise<V2>,
-                                       _ lp: Promise<V3>) -> Promise<(V1, V2, V3)>
+                                       _ lp: Promise<V3>,
+                                       on context: ExecutionContext = DispatchQueue.main) -> Promise<(V1, V2, V3)>
     {
         return Promise<(V1, V2, V3)> { completion in
             let zp = self.zip(p1, p2)
@@ -76,15 +80,17 @@ extension Promises {
                 }
             }
 
-            zp.then(zip).catch(completion)
-            lp.then(zip).catch(completion)
+            zp.then(context: context, zip).catch(context: context, completion)
+            lp.then(context: context, zip).catch(context: context, completion)
         }
     }
 
     public static func zip<V1, V2, V3, V4>(_ p1: Promise<V1>,
                                            _ p2: Promise<V2>,
                                            _ p3: Promise<V3>,
-                                           _ lp: Promise<V4>) -> Promise<(V1, V2, V3, V4)>
+                                           _ lp: Promise<V4>,
+                                           on context: ExecutionContext = DispatchQueue.main)
+        -> Promise<(V1, V2, V3, V4)>
     {
         return Promise<(V1, V2, V3, V4)> { completion in
             let zp = self.zip(p1, p2, p3)
@@ -95,8 +101,46 @@ extension Promises {
                 }
             }
 
-            zp.then(zip).catch(completion)
-            lp.then(zip).catch(completion)
+            zp.then(context: context, zip).catch(context: context, completion)
+            lp.then(context: context, zip).catch(context: context, completion)
+        }
+    }
+}
+
+// MARK: - All & Race
+
+extension Promises {
+    public static func all<Value>(_ promises: [Promise<Value>],
+                                  on context: ExecutionContext = DispatchQueue.main) -> Promise<[Value]>
+    {
+        return Promise<[Value]> { completion in
+            guard !promises.isEmpty else {
+                completion(.success([]))
+                return
+            }
+
+            for promise in promises {
+                promise
+                    .then(context: context) { value in
+                        if !promises.contains { $0.isRejected || $0.isPending } {
+                            completion(.success(promises.compactMap { $0.value }))
+                        }
+                    }
+                    .catch(context: context, completion)
+            }
+        }
+    }
+
+    public static func race<Value>(_ promises: [Promise<Value>],
+                                   on context: ExecutionContext = DispatchQueue.main) -> Promise<Value>
+    {
+        return Promise<Value> { completion in
+            guard !promises.isEmpty else {
+                completion(.failure(Promise<Value>.Error.race))
+                return
+            }
+
+            promises.forEach { $0.observe(on: context, with: completion) }
         }
     }
 }

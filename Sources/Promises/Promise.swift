@@ -11,6 +11,7 @@ public final class Promise<Value> {
     public enum Error: Swift.Error {
         case timeout
         case invalid(value: Value)
+        case race
     }
 
     public enum Result {
@@ -18,40 +19,22 @@ public final class Promise<Value> {
         case failure(Swift.Error)
     }
 
-    public enum State {
-        case pending
-        case fulfilled(value: Value)
-        case rejected(error: Swift.Error)
-
-        public var value: Value? {
-            guard case .fulfilled(let value) = self else {
-                return nil
-            }
-
-            return value
-        }
-
-        public var error: Swift.Error? {
-            guard case .rejected(let error) = self else {
-                return nil
-            }
-
-            return error
-        }
-
-        init(from result: Result?) {
-            switch result {
-            case .none: self = .pending
-            case .success(let value)?: self = .fulfilled(value: value)
-            case .failure(let error)?: self = .rejected(error: error)
-            }
-        }
-    }
-
     public var state: State {
         return queue.sync {
             return State(from: result)
         }
+    }
+
+    public var isPending: Bool {
+        return state.isPending
+    }
+
+    public var isFulfilled: Bool {
+        return state.isFulfilled
+    }
+
+    public var isRejected: Bool {
+        return state.isRejected
     }
 
     public var value: Value? {
