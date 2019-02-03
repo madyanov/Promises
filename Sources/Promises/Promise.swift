@@ -65,6 +65,10 @@ public final class Promise<Value> {
         do {
             try work { result in
                 self.queue.sync(flags: .barrier) {
+                    guard self.result == nil else {
+                        return
+                    }
+
                     self.result = result
                 }
             }
