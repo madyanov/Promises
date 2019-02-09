@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.homepage      = "https://github.com/madyanov/Promises"
   s.license       = "MIT"
   s.author        = { "Roman Madyanov" => "romantaken@gmail.com" }
-  s.source        = { :git => "https://github.com/madyanov/Promises.git", :tag => "#{s.version}" }
+  s.source        = { :git => "https://github.com/madyanov/Promises.git", :tag => "v#{s.version}" }
   s.source_files  = "Sources/**/*"
   s.framework     = "Foundation"
   s.swift_version = "4.2"

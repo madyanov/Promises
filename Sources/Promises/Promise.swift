@@ -137,7 +137,7 @@ public final class Promise<Value> {
 
     @discardableResult
     public func finally(context: ExecutionContext = DispatchQueue.main,
-                        _ handler: @escaping  () -> Void) -> Self
+                        _ handler: @escaping () -> Void) -> Self
     {
         return observe(on: context) { _ in
             handler()
