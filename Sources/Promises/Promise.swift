@@ -5,7 +5,7 @@
 //  Created by Roman Madyanov on 03/02/2019.
 //
 
-import Foundation
+import Dispatch
 
 public final class Promise<Value> {
     public enum Result {

@@ -5,8 +5,6 @@
 //  Created by Roman Madyanov on 03/02/2019.
 //
 
-import Foundation
-
 extension Promise {
     public enum State {
         case pending
