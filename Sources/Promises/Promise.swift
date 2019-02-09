@@ -8,12 +8,6 @@
 import Foundation
 
 public final class Promise<Value> {
-    public enum Error: Swift.Error {
-        case timeout
-        case invalid(value: Value)
-        case race
-    }
-
     public enum Result {
         case success(Value)
         case failure(Swift.Error)
@@ -126,17 +120,6 @@ public final class Promise<Value> {
     }
 
     @discardableResult
-    public func `catch`<Value>(context: ExecutionContext = DispatchQueue.main,
-                               _ handler: @escaping (Promise<Value>.Result) -> Void) -> Self
-    {
-        return observe(on: context) { result in
-            switch result {
-            case .success: break
-            case .failure(let error): handler(.failure(error))
-            }
-        }
-    }
-
     public func recover(context: ExecutionContext = DispatchQueue.main,
                         _ recovery: @escaping (Swift.Error) throws -> Promise<Value>) -> Promise<Value>
     {
@@ -151,16 +134,6 @@ public final class Promise<Value> {
                 }
         }
     }
-
-    public func ensure(_ check: @escaping (Value) -> Bool) -> Promise<Value> {
-        return then { value -> Value in
-            guard check(value) else {
-                throw Error.invalid(value: value)
-            }
-
-            return value
-        }
-    }
 }
 
 extension Promise.Result where Value == Void {
@@ -170,7 +143,6 @@ extension Promise.Result where Value == Void {
 }
 
 // MARK: - Private
-
 extension Promise {
     private struct Observer {
         private let handler: (Result) -> Void
