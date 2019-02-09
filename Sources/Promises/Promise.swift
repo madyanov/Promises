@@ -168,7 +168,7 @@ extension Promise {
     }
 
     private func report(result: Result) {
-        self.queue.sync(flags: .barrier) {
+        queue.sync(flags: .barrier) {
             guard self.result == nil else {
                 return
             }
