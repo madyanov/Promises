@@ -121,13 +121,13 @@ public final class Promise<Value> {
 
     @discardableResult
     public func recover(context: ExecutionContext = DispatchQueue.main,
-                        _ recovery: @escaping (Swift.Error) throws -> Promise<Value>) -> Promise<Value>
+                        _ handler: @escaping (Swift.Error) throws -> Promise) -> Promise
     {
-        return Promise<Value> { completion in
+        return Promise { completion in
             self.observe(on: context, with: completion)
                 .catch(context: context) { error in
                     do {
-                        try recovery(error).observe(on: context, with: completion)
+                        try handler(error).observe(on: context, with: completion)
                     } catch {
                         completion(.failure(error))
                     }
