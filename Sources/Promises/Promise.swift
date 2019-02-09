@@ -134,6 +134,14 @@ public final class Promise<Value> {
                 }
         }
     }
+
+    public func finally(context: ExecutionContext = DispatchQueue.main,
+                        _ handler: @escaping  () -> Void) -> Self
+    {
+        return observe(on: context) { _ in
+            handler()
+        }
+    }
 }
 
 extension Promise.Result where Value == Void {
