@@ -17,7 +17,6 @@ extension Promise {
             }
 
             return false
-
         }
 
         public var isFulfilled: Bool {
