@@ -7,8 +7,10 @@
 
 import Dispatch
 
-public final class Promise<Value> {
-    public enum Result {
+public final class Promise<Value>
+{
+    public enum Result
+    {
         case success(Value)
         case failure(Swift.Error)
     }
@@ -145,14 +147,15 @@ public final class Promise<Value> {
     }
 }
 
-extension Promise.Result where Value == Void {
+extension Promise.Result where Value == Void
+{
     public static var success: Promise.Result {
         return .success(())
     }
 }
 
-// MARK: - Private
-extension Promise {
+extension Promise
+{
     private struct Observer {
         private let handler: (Result) -> Void
         private let context: ExecutionContext

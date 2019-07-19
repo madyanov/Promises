@@ -64,23 +64,12 @@ opt_in_rules:
     - yoda_condition
 
 analyzer_rules:
-    - unused_private_declaration
+    - unused_declaration
 
 warning_threshold: 1
 
-file_length: 1000
-type_body_length: 500
-function_body_length: 100
-
 identifier_name:
     min_length: 1
-    max_length: 50
-
-type_name:
-    max_length: 50
-
-nesting:
-    type_level: 2
 
 line_length:
     ignores_comments: true
@@ -93,12 +82,3 @@ trailing_closure:
 
 cyclomatic_complexity:
     ignores_case_statements: true
-
-custom_rules:
-    prohibited_cyrillic:
-        match_kinds:
-            - argument
-            - identifier
-            - parameter
-            - typeidentifier
-        regex: '[а-яА-ЯёЁ]'

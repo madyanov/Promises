@@ -8,7 +8,8 @@
 import XCTest
 @testable import Promises
 
-final class PromiseTests: XCTestCase {
+final class PromiseTests: XCTestCase
+{
     func testTransform() {
         let expect = expectation(description: "Waiting")
         var result: String?

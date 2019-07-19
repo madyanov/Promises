@@ -7,11 +7,13 @@
 
 import Dispatch
 
-public protocol ExecutionContext {
+public protocol ExecutionContext
+{
     func execute(_ work: @escaping () -> Void)
 }
 
-extension DispatchQueue: ExecutionContext {
+extension DispatchQueue: ExecutionContext
+{
     public func execute(_ work: @escaping () -> Void) {
         async(execute: work)
     }

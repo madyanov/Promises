@@ -5,8 +5,10 @@
 //  Created by Roman Madyanov on 03/02/2019.
 //
 
-extension Promise {
-    public enum State {
+extension Promise
+{
+    public enum State
+    {
         case pending
         case fulfilled(value: Value)
         case rejected(error: Swift.Error)
