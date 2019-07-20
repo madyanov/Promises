@@ -45,6 +45,21 @@ public final class Promise<Value>
         return Promise<Void>(value: ())
     }
 
+    private struct Observer
+    {
+        private let handler: (Result) -> Void
+        private let context: ExecutionContext
+
+        init(handler: @escaping (Result) -> Void, context: ExecutionContext) {
+            self.handler = handler
+            self.context = context
+        }
+
+        func report(result: Result) {
+            context.execute { self.handler(result) }
+        }
+    }
+
     private var result: Result?
     private var observers: [Observer] = []
 
@@ -160,20 +175,6 @@ extension Promise.Result where Value == Void
 
 extension Promise
 {
-    private struct Observer {
-        private let handler: (Result) -> Void
-        private let context: ExecutionContext
-
-        init(handler: @escaping (Result) -> Void, context: ExecutionContext) {
-            self.handler = handler
-            self.context = context
-        }
-
-        func report(result: Result) {
-            context.execute { self.handler(result) }
-        }
-    }
-
     private func report(result: Result) {
         queue.sync(flags: .barrier) {
             guard self.result == nil else {
