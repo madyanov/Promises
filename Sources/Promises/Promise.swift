@@ -41,6 +41,10 @@ public final class Promise<Value>
         return state.error
     }
 
+    public static var void: Promise<Void> {
+        return Promise<Void>(value: ())
+    }
+
     private var result: Result?
     private var observers: [Observer] = []
 
