@@ -7,6 +7,8 @@
 
 import Dispatch
 
+public typealias Single = Promise<Void>
+
 public final class Promise<Value>
 {
     public enum Result
