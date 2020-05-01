@@ -1,4 +1,8 @@
 import XCTest
+
 import PromisesTests
 
-XCTMain(PromisesTests.allTests())
+var tests = [XCTestCaseEntry]()
+tests += PromisesTests.__allTests()
+
+XCTMain(tests)
