@@ -10,7 +10,7 @@ import XCTest
 
 final class PromiseTests: XCTestCase
 {
-    func testTransform() {
+    func test_transform() {
         let expect = expectation(description: "Waiting")
 
         var result: String?
@@ -33,12 +33,12 @@ final class PromiseTests: XCTestCase
         XCTAssertTrue(finallyCalled)
     }
 
-    func testFinally() {
+    func test_finally() {
         let expect = expectation(description: "Waiting")
 
         var finallyCalled = false
 
-        Single { _ in throw Error.error }
+        Promise<Void> { _ in throw Error.error }
             .finally {
                 finallyCalled = true
                 expect.fulfill()
@@ -49,13 +49,13 @@ final class PromiseTests: XCTestCase
         XCTAssertTrue(finallyCalled)
     }
 
-    func testFinallyWithCatch() {
+    func test_finally_with_catch() {
         let expect = expectation(description: "Waiting")
 
         var catchCalled = false
         var finallyCalled = false
 
-        Single { _ in throw Error.error }
+        Promise<Void> { _ in throw Error.error }
             .catch { _ in catchCalled = true }
             .finally {
                 finallyCalled = true

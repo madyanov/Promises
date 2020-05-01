@@ -6,9 +6,9 @@ extension PromiseTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__PromiseTests = [
-        ("testFinally", testFinally),
-        ("testFinallyWithCatch", testFinallyWithCatch),
-        ("testTransform", testTransform),
+        ("test_finally", test_finally),
+        ("test_finally_with_catch", test_finally_with_catch),
+        ("test_transform", test_transform),
     ]
 }
 

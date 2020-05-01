@@ -7,21 +7,8 @@
 
 import Dispatch
 
-public typealias Single = Promise<Void>
-
 public final class Promise<Value>
 {
-    public var isPending: Bool { state.isPending }
-    public var isFulfilled: Bool { state.isFulfilled }
-    public var isRejected: Bool { state.isRejected }
-
-    public var value: Value? { state.value }
-    public var error: Swift.Error? { state.error }
-
-    public var state: State<Value> {
-        queue.sync { State(from: result) }
-    }
-
     public static var void: Promise<Void> { Promise<Void>(value: ()) }
 
     private var result: Result<Value>?
@@ -101,22 +88,6 @@ public final class Promise<Value>
             case .success: break
             case .failure(let error): handler(error)
             }
-        }
-    }
-
-    @discardableResult
-    public func recover(context: ExecutionContext = DispatchQueue.main,
-                        _ handler: @escaping (Swift.Error) throws -> Promise) -> Promise
-    {
-        return Promise { completion in
-            self.observe(on: context, with: completion)
-                .catch(context: context) { error in
-                    do {
-                        try handler(error).observe(on: context, with: completion)
-                    } catch {
-                        completion(.failure(error))
-                    }
-                }
         }
     }
 
