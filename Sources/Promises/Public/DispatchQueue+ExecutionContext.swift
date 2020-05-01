@@ -1,16 +1,11 @@
 //
-//  Utils.swift
+//  DispatchQueue+ExecutionContext.swift
 //  Promises
 //
-//  Created by Roman Madyanov on 03/02/2019.
+//  Created by Roman Madyanov on 01.05.2020.
 //
 
 import Dispatch
-
-public protocol ExecutionContext
-{
-    func execute(_ work: @escaping () -> Void)
-}
 
 extension DispatchQueue: ExecutionContext
 {

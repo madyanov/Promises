@@ -15,9 +15,9 @@ final class PromiseTests: XCTestCase
         var result: String?
 
         Promise<String> { completion in completion(.success("Hello")) }
-            .then { return "\($0) World" }
+            .then { "\($0) World" }
             .then { result = $0 }
-            .then { _ in expect.fulfill() }
+            .finally { expect.fulfill() }
 
         waitForExpectations(timeout: 1)
         XCTAssert(result == "Hello World")

@@ -11,59 +11,21 @@ public typealias Single = Promise<Void>
 
 public final class Promise<Value>
 {
-    public enum Result
-    {
-        case success(Value)
-        case failure(Swift.Error)
+    public var isPending: Bool { state.isPending }
+    public var isFulfilled: Bool { state.isFulfilled }
+    public var isRejected: Bool { state.isRejected }
+
+    public var value: Value? { state.value }
+    public var error: Swift.Error? { state.error }
+
+    public var state: State<Value> {
+        queue.sync { State(from: result) }
     }
 
-    public var state: State {
-        return queue.sync {
-            return State(from: result)
-        }
-    }
+    public static var void: Promise<Void> { Promise<Void>(value: ()) }
 
-    public var isPending: Bool {
-        return state.isPending
-    }
-
-    public var isFulfilled: Bool {
-        return state.isFulfilled
-    }
-
-    public var isRejected: Bool {
-        return state.isRejected
-    }
-
-    public var value: Value? {
-        return state.value
-    }
-
-    public var error: Swift.Error? {
-        return state.error
-    }
-
-    public static var void: Promise<Void> {
-        return Promise<Void>(value: ())
-    }
-
-    private struct Observer
-    {
-        private let handler: (Result) -> Void
-        private let context: ExecutionContext
-
-        init(handler: @escaping (Result) -> Void, context: ExecutionContext) {
-            self.handler = handler
-            self.context = context
-        }
-
-        func report(result: Result) {
-            context.execute { self.handler(result) }
-        }
-    }
-
-    private var result: Result?
-    private var observers: [Observer] = []
+    private var result: Result<Value>?
+    private var observers: [Observer<Value>] = []
 
     private lazy var queue = DispatchQueue(label: "PromisesQueue", attributes: .concurrent)
 
@@ -75,7 +37,7 @@ public final class Promise<Value>
         result = .failure(error)
     }
 
-    public init(_ work: @escaping (@escaping (Result) -> Void) throws -> Void) {
+    public init(_ work: @escaping (@escaping (Result<Value>) -> Void) throws -> Void) {
         do {
             try work(report)
         } catch {
@@ -85,7 +47,7 @@ public final class Promise<Value>
 
     @discardableResult
     public func observe(on context: ExecutionContext = DispatchQueue.main,
-                        with handler: @escaping (Result) -> Void) -> Self
+                        with handler: @escaping (Result<Value>) -> Void) -> Self
     {
         let observer = Observer(handler: handler, context: context)
 
@@ -168,20 +130,11 @@ public final class Promise<Value>
     }
 }
 
-extension Promise.Result where Value == Void
-{
-    public static var success: Promise.Result {
-        return .success(())
-    }
-}
-
 extension Promise
 {
-    private func report(result: Result) {
+    private func report(result: Result<Value>) {
         queue.sync(flags: .barrier) {
-            guard self.result == nil else {
-                return
-            }
+            guard self.result == nil else { return }
 
             self.result = result
             observers.forEach { $0.report(result: result) }
