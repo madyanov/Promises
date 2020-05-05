@@ -92,6 +92,22 @@ public final class Promise<Value>
     }
 
     @discardableResult
+    public func recover(context: ExecutionContext = DispatchQueue.main,
+                        _ handler: @escaping (Swift.Error) throws -> Promise) -> Promise
+    {
+        return Promise { completion in
+            self.observe(on: context, with: completion)
+                .catch(context: context) { error in
+                    do {
+                        try handler(error).observe(on: context, with: completion)
+                    } catch {
+                        completion(.failure(error))
+                    }
+                }
+        }
+    }
+
+    @discardableResult
     public func finally(context: ExecutionContext = DispatchQueue.main,
                         _ handler: @escaping () -> Void) -> Self
     {
@@ -103,7 +119,7 @@ public final class Promise<Value>
 
 extension Promise
 {
-    private func report(result: Result<Value>) {
+    func report(result: Result<Value>) {
         queue.sync(flags: .barrier) {
             guard self.result == nil else { return }
 
